@@ -150,7 +150,7 @@ app.post('/make-call', async (req, res) => {
         const call = await client.calls.create({
             to: to,
             from: twilioPhoneNumber,
-            url: 'https://crm.webhook.symbioflows.com/voice'
+            url: 'https://crm.webhook.symbioflows.com'
         });
         
         console.log('Call created successfully:', call.sid);
@@ -265,7 +265,7 @@ app.post('/test-call', async (req, res) => {
         const callParams = {
             to: to,
             from: twilioPhoneNumber,
-            url: 'https://crm.webhook.symbioflows.com/voice'
+            url: 'https://crm.webhook.symbioflows.com'
         };
         
         res.json({
