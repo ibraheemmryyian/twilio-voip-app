@@ -132,17 +132,28 @@ app.post('/sms', (req, res) => {
 // Make an outgoing call
 app.post('/make-call', async (req, res) => {
     try {
+        console.log('Make call request received:', req.body);
+        console.log('Twilio config:', {
+            accountSid: accountSid ? accountSid.substring(0, 8) + '...' : 'MISSING',
+            hasAuthToken: !!authToken,
+            phoneNumber: twilioPhoneNumber
+        });
+        
         const { to, message } = req.body;
         
         if (!to) {
             return res.status(400).json({ error: 'Phone number is required' });
         }
         
+        console.log('Creating call to:', to, 'from:', twilioPhoneNumber);
+        
         const call = await client.calls.create({
             to: to,
             from: twilioPhoneNumber,
             url: 'https://crm.webhook.symbioflows.com/voice'
         });
+        
+        console.log('Call created successfully:', call.sid);
         
         res.json({ 
             success: true, 
@@ -237,6 +248,39 @@ app.get('/test-twilio', async (req, res) => {
             error: error.message,
             code: error.code,
             status: error.status
+        });
+    }
+});
+
+// Test call creation without actually making the call
+app.post('/test-call', async (req, res) => {
+    try {
+        const { to } = req.body;
+        
+        if (!to) {
+            return res.status(400).json({ error: 'Phone number is required' });
+        }
+        
+        // Just validate the call parameters without creating it
+        const callParams = {
+            to: to,
+            from: twilioPhoneNumber,
+            url: 'https://crm.webhook.symbioflows.com/voice'
+        };
+        
+        res.json({
+            success: true,
+            message: 'Call parameters validated successfully',
+            callParams: {
+                to: callParams.to,
+                from: callParams.from,
+                url: callParams.url
+            }
+        });
+    } catch (error) {
+        res.json({
+            success: false,
+            error: error.message
         });
     }
 });
