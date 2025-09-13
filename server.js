@@ -239,26 +239,9 @@ app.get('/test-twilio', async (req, res) => {
 // Get Twilio access token for WebRTC
 app.get('/get-token', (req, res) => {
     try {
-        const AccessToken = twilio.jwt.AccessToken;
-        const VoiceGrant = AccessToken.VoiceGrant;
-        
-        const voiceGrant = new VoiceGrant({
-            outgoingApplicationSid: 'AP1234567890abcdef1234567890abcdef', // You'll need to create a TwiML App
-            incomingAllow: true,
-        });
-        
-        const token = new AccessToken(
-            accountSid,
-            'SK1234567890abcdef1234567890abcdef', // You'll need to create an API Key
-            'your-secret-key', // You'll need to create an API Key Secret
-            { identity: 'user' }
-        );
-        
-        token.addGrant(voiceGrant);
-        
         res.json({
-            success: true,
-            token: token.toJwt()
+            success: false,
+            error: 'WebRTC token generation requires API keys. Please configure Twilio API keys in environment variables.'
         });
     } catch (error) {
         res.json({
