@@ -1,0 +1,5 @@
+[33m1ac88ec[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m)[m Fix routing for debug endpoints and phone app
+[33m41c9852[m Remove hardcoded API keys
+[33mbe8f660[m Add comprehensive debugging and WebRTC phone app
+[33m986241b[m[33m ([m[1;31morigin/main[m[33m)[m Fix call URL and add better error handling
+[33m3ffeeff[m Add web interface for making calls and sending SMS
