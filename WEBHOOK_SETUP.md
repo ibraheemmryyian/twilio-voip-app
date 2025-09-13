@@ -72,9 +72,9 @@ Make sure these environment variables are set in your Vercel dashboard:
 1. Go to your Vercel project dashboard
 2. Click "Settings" → "Environment Variables"
 3. Add these variables:
-   - `TWILIO_ACCOUNT_SID`: `AC32385b139e800d9c1b968fe3af47686d`
-   - `TWILIO_AUTH_TOKEN`: `6129bf1c1eb2d7e4b1e5afb38f3b428a`
-   - `TWILIO_PHONE_NUMBER`: `+15005550006`
+   - `TWILIO_ACCOUNT_SID`: Your Twilio Account SID
+   - `TWILIO_AUTH_TOKEN`: Your Twilio Auth Token
+   - `TWILIO_PHONE_NUMBER`: Your Twilio Phone Number
 
 ### 5. Test with Real Phone Numbers
 

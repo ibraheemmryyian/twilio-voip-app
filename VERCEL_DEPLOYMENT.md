@@ -51,6 +51,7 @@ vercel env add TWILIO_ACCOUNT_SID
 vercel env add TWILIO_AUTH_TOKEN
 vercel env add TWILIO_PHONE_NUMBER
 ```
+Enter your actual Twilio credentials when prompted.
 
 ## Your Webhook URLs
 

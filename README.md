@@ -17,10 +17,10 @@ A simple VoIP application using Twilio for handling calls and SMS.
    ```
 
 2. **Environment Variables**
-   The `.env` file is already configured with your Twilio credentials:
-   - Account SID: AC32385b139e800d9c1b968fe3af47686d
-   - Auth Token: 6129bf1c1eb2d7e4b1e5afb38f3b428a
-   - Phone Number: +15005550006
+   Create a `.env` file with your Twilio credentials:
+   - TWILIO_ACCOUNT_SID: Your Twilio Account SID
+   - TWILIO_AUTH_TOKEN: Your Twilio Auth Token
+   - TWILIO_PHONE_NUMBER: Your Twilio Phone Number
 
 3. **Start the Server**
    ```bash
