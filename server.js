@@ -1,6 +1,7 @@
 const express = require('express');
 const twilio = require('twilio');
 const bodyParser = require('body-parser');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -20,19 +21,9 @@ app.use(bodyParser.json());
 // Serve static files (if needed)
 app.use(express.static('public'));
 
-// Root endpoint
+// Root endpoint - serve the web interface
 app.get('/', (req, res) => {
-    res.send(`
-        <h1>Twilio VoIP Application</h1>
-        <p>Server is running on port ${port}</p>
-        <h2>Available Endpoints:</h2>
-        <ul>
-            <li>POST /voice - Handle incoming calls</li>
-            <li>POST /sms - Handle incoming SMS</li>
-            <li>POST /make-call - Make an outgoing call</li>
-            <li>POST /send-sms - Send an SMS</li>
-        </ul>
-    `);
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Handle favicon requests to prevent 404 errors
