@@ -31,6 +31,16 @@ app.get('/phone.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'phone.html'));
 });
 
+// Serve simple phone app
+app.get('/simple-phone.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'simple-phone.html'));
+});
+
+// Serve voice phone app
+app.get('/voice-phone.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'voice-phone.html'));
+});
+
 // Handle favicon requests to prevent 404 errors
 app.get('/favicon.ico', (req, res) => {
     res.status(204).end();
