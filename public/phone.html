@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twilio WebRTC Phone</title>
+    <script src="https://sdk.twilio.com/js/client/releases/1.14.0/twilio.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .phone-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .phone-header {
+            margin-bottom: 30px;
+        }
+        
+        .phone-header h1 {
+            color: #333;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .phone-header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .dialer {
+            margin-bottom: 30px;
+        }
+        
+        .number-display {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .key {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .key:hover {
+            transform: translateY(-2px);
+        }
+        
+        .key:active {
+            transform: translateY(0);
+        }
+        
+        .call-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .call-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 120px;
+        }
+        
+        .call-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        
+        .call-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .hangup-btn {
+            background: #dc3545;
+        }
+        
+        .hangup-btn:hover {
+            background: #c82333;
+        }
+        
+        .clear-btn {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .clear-btn:hover {
+            background: #e0a800;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.calling {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.disconnected {
+            background: #f8d9da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .debug-info {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #666;
+            text-align: left;
+        }
+        
+        .debug-info h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .debug-info pre {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 0.8em;
+        }
+        
+        @media (max-width: 480px) {
+            .phone-container {
+                padding: 20px;
+            }
+            
+            .key {
+                padding: 15px;
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <div class="phone-header">
+            <h1>📞 WebRTC Phone</h1>
+            <p>Make calls directly from your browser</p>
+        </div>
+        
+        <div class="dialer">
+            <div class="number-display" id="numberDisplay">Enter number...</div>
+            
+            <div class="keypad">
+                <button class="key" onclick="addDigit('1')">1</button>
+                <button class="key" onclick="addDigit('2')">2</button>
+                <button class="key" onclick="addDigit('3')">3</button>
+                <button class="key" onclick="addDigit('4')">4</button>
+                <button class="key" onclick="addDigit('5')">5</button>
+                <button class="key" onclick="addDigit('6')">6</button>
+                <button class="key" onclick="addDigit('7')">7</button>
+                <button class="key" onclick="addDigit('8')">8</button>
+                <button class="key" onclick="addDigit('9')">9</button>
+                <button class="key" onclick="addDigit('*')">*</button>
+                <button class="key" onclick="addDigit('0')">0</button>
+                <button class="key" onclick="addDigit('#')">#</button>
+            </div>
+            
+            <div class="call-controls">
+                <button class="call-btn" id="callBtn" onclick="makeCall()">📞 Call</button>
+                <button class="call-btn hangup-btn" id="hangupBtn" onclick="hangup()" disabled>📵 Hang Up</button>
+                <button class="call-btn clear-btn" onclick="clearNumber()">🗑️ Clear</button>
+            </div>
+        </div>
+        
+        <div class="status" id="status">Ready to make calls</div>
+        
+        <div class="debug-info">
+            <h4>Debug Information:</h4>
+            <div id="debugInfo">Loading...</div>
+        </div>
+    </div>
+
+    <script>
+        let currentNumber = '';
+        let currentCall = null;
+        let device = null;
+        
+        // Initialize Twilio Device
+        async function initializeTwilio() {
+            try {
+                updateStatus('Initializing Twilio...', 'calling');
+                
+                // Get access token from your server
+                const response = await fetch('/get-token');
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to get access token');
+                }
+                
+                // Initialize Twilio Device
+                device = new Twilio.Device(data.token, {
+                    logLevel: 1,
+                    codecPreferences: ['opus', 'pcmu']
+                });
+                
+                // Set up event listeners
+                device.on('ready', () => {
+                    updateStatus('Ready to make calls', 'connected');
+                    updateDebugInfo('Twilio Device initialized successfully');
+                });
+                
+                device.on('error', (error) => {
+                    updateStatus(`Error: ${error.message}`, 'error');
+                    updateDebugInfo(`Device Error: ${JSON.stringify(error, null, 2)}`);
+                });
+                
+                device.on('incoming', (call) => {
+                    updateStatus('Incoming call...', 'calling');
+                    currentCall = call;
+                    setupCallHandlers(call);
+                });
+                
+                device.on('disconnect', () => {
+                    updateStatus('Call ended', 'disconnected');
+                    currentCall = null;
+                    updateCallButtons(false);
+                });
+                
+            } catch (error) {
+                updateStatus(`Failed to initialize: ${error.message}`, 'error');
+                updateDebugInfo(`Initialization Error: ${error.message}`);
+            }
+        }
+        
+        // Set up call event handlers
+        function setupCallHandlers(call) {
+            call.on('accept', () => {
+                updateStatus('Call connected', 'connected');
+                updateCallButtons(true);
+            });
+            
+            call.on('disconnect', () => {
+                updateStatus('Call ended', 'disconnected');
+                currentCall = null;
+                updateCallButtons(false);
+            });
+            
+            call.on('error', (error) => {
+                updateStatus(`Call error: ${error.message}`, 'error');
+                updateDebugInfo(`Call Error: ${JSON.stringify(error, null, 2)}`);
+            });
+        }
+        
+        // Add digit to number display
+        function addDigit(digit) {
+            currentNumber += digit;
+            document.getElementById('numberDisplay').textContent = currentNumber || 'Enter number...';
+        }
+        
+        // Clear number display
+        function clearNumber() {
+            currentNumber = '';
+            document.getElementById('numberDisplay').textContent = 'Enter number...';
+        }
+        
+        // Make a call
+        function makeCall() {
+            if (!currentNumber) {
+                updateStatus('Please enter a number', 'error');
+                return;
+            }
+            
+            if (!device) {
+                updateStatus('Device not initialized', 'error');
+                return;
+            }
+            
+            try {
+                updateStatus('Calling...', 'calling');
+                currentCall = device.connect({
+                    To: currentNumber
+                });
+                
+                setupCallHandlers(currentCall);
+                updateCallButtons(true);
+                
+            } catch (error) {
+                updateStatus(`Call failed: ${error.message}`, 'error');
+                updateDebugInfo(`Call Error: ${error.message}`);
+            }
+        }
+        
+        // Hang up call
+        function hangup() {
+            if (currentCall) {
+                currentCall.disconnect();
+                currentCall = null;
+                updateCallButtons(false);
+                updateStatus('Call ended', 'disconnected');
+            }
+        }
+        
+        // Update call buttons
+        function updateCallButtons(inCall) {
+            document.getElementById('callBtn').disabled = inCall;
+            document.getElementById('hangupBtn').disabled = !inCall;
+        }
+        
+        // Update status
+        function updateStatus(message, type) {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+        }
+        
+        // Update debug info
+        function updateDebugInfo(info) {
+            document.getElementById('debugInfo').innerHTML = `<pre>${info}</pre>`;
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            updateDebugInfo('Initializing...');
+            initializeTwilio();
+        });
+    </script>
+</body>
+</html>

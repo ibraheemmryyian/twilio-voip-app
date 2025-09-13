@@ -192,6 +192,82 @@ app.get('/health', (req, res) => {
     res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// Debug endpoint to test Twilio configuration
+app.get('/debug', (req, res) => {
+    const debug = {
+        timestamp: new Date().toISOString(),
+        environment: {
+            hasAccountSid: !!accountSid,
+            hasAuthToken: !!authToken,
+            hasPhoneNumber: !!twilioPhoneNumber,
+            accountSidLength: accountSid ? accountSid.length : 0,
+            phoneNumber: twilioPhoneNumber
+        },
+        twilio: {
+            clientExists: !!client,
+            accountSid: accountSid ? accountSid.substring(0, 8) + '...' : 'MISSING',
+            phoneNumber: twilioPhoneNumber || 'MISSING'
+        }
+    };
+    res.json(debug);
+});
+
+// Test Twilio connection
+app.get('/test-twilio', async (req, res) => {
+    try {
+        // Test account info
+        const account = await client.api.accounts(accountSid).fetch();
+        res.json({
+            success: true,
+            account: {
+                sid: account.sid,
+                friendlyName: account.friendlyName,
+                status: account.status,
+                type: account.type
+            }
+        });
+    } catch (error) {
+        res.json({
+            success: false,
+            error: error.message,
+            code: error.code,
+            status: error.status
+        });
+    }
+});
+
+// Get Twilio access token for WebRTC
+app.get('/get-token', (req, res) => {
+    try {
+        const AccessToken = twilio.jwt.AccessToken;
+        const VoiceGrant = AccessToken.VoiceGrant;
+        
+        const voiceGrant = new VoiceGrant({
+            outgoingApplicationSid: 'AP1234567890abcdef1234567890abcdef', // You'll need to create a TwiML App
+            incomingAllow: true,
+        });
+        
+        const token = new AccessToken(
+            accountSid,
+            'SK1234567890abcdef1234567890abcdef', // You'll need to create an API Key
+            'your-secret-key', // You'll need to create an API Key Secret
+            { identity: 'user' }
+        );
+        
+        token.addGrant(voiceGrant);
+        
+        res.json({
+            success: true,
+            token: token.toJwt()
+        });
+    } catch (error) {
+        res.json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
 // Start server (only if not in Vercel environment)
 if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
     app.listen(port, () => {
