@@ -26,6 +26,11 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Serve phone app
+app.get('/phone.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'phone.html'));
+});
+
 // Handle favicon requests to prevent 404 errors
 app.get('/favicon.ico', (req, res) => {
     res.status(204).end();
