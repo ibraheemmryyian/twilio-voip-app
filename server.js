@@ -136,7 +136,7 @@ app.post('/make-call', async (req, res) => {
         const call = await client.calls.create({
             to: to,
             from: twilioPhoneNumber,
-            url: `${req.protocol}://${req.get('host')}/voice`
+            url: 'https://crm.webhook.symbioflows.com/voice'
         });
         
         res.json({ 
@@ -146,7 +146,18 @@ app.post('/make-call', async (req, res) => {
         });
     } catch (error) {
         console.error('Error making call:', error);
-        res.status(500).json({ error: 'Failed to make call', details: error.message });
+        console.error('Error details:', {
+            message: error.message,
+            code: error.code,
+            status: error.status,
+            moreInfo: error.moreInfo
+        });
+        res.status(500).json({ 
+            error: 'Failed to make call', 
+            details: error.message,
+            code: error.code,
+            status: error.status
+        });
     }
 });
 
