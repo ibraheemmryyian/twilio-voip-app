@@ -106,6 +106,36 @@ app.post('/voice/record-complete', (req, res) => {
     res.send(twiml.toString());
 });
 
+// Handle conference calls (for two-way communication)
+app.post('/voice-conference', (req, res) => {
+    const twiml = new twilio.twiml.VoiceResponse();
+    
+    // Create a conference room
+    const conferenceName = 'call-' + Date.now();
+    
+    twiml.say('Connecting you to the call. Please wait.');
+    twiml.dial().conference(conferenceName, {
+        startConferenceOnEnter: true,
+        endConferenceOnExit: true,
+        waitUrl: 'https://crm.webhook.symbioflows.com/voice-wait',
+        maxParticipants: 2
+    });
+    
+    res.type('text/xml');
+    res.send(twiml.toString());
+});
+
+// Handle waiting music/voice
+app.post('/voice-wait', (req, res) => {
+    const twiml = new twilio.twiml.VoiceResponse();
+    twiml.say('Please wait while we connect your call.');
+    twiml.pause({ length: 3 });
+    twiml.redirect('/voice-conference');
+    
+    res.type('text/xml');
+    res.send(twiml.toString());
+});
+
 // Handle incoming SMS
 app.post('/sms', (req, res) => {
     const twiml = new twilio.twiml.MessagingResponse();
@@ -150,7 +180,7 @@ app.post('/make-call', async (req, res) => {
         const call = await client.calls.create({
             to: to,
             from: twilioPhoneNumber,
-            url: 'https://crm.webhook.symbioflows.com'
+            url: 'https://crm.webhook.symbioflows.com/voice-conference'
         });
         
         console.log('Call created successfully:', call.sid);
